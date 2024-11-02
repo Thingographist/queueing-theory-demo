@@ -1,0 +1,16 @@
+{
+  "name": "click-stream-app-model",
+  "version": "1.0.0",
+  "dependencies": {
+    "@influxdata/influxdb-client": "^1.35.0",
+    "axios": "^1.7.7",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "kafkajs": "^2.2.4",
+    "pug": "^3.0.3"
+  },
+  "scripts": {
+    "init-grafana": "node grafana/init.js",
+    "start": "node src/server.js"
+  }
+}

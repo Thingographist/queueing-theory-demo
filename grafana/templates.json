@@ -1,0 +1,1 @@
+{"name":"kakfa-data-alerts","template":"{{ define \"kakfa-data-alerts\"}}\n{{- range .Alerts.Firing -}}\n{{ .Labels }}, {{ range $k,$v := .Values }}{{$k}}={{$v}}, {{- end}}\n{{ end }}\n{{- end }}"}

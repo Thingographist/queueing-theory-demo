@@ -1,0 +1,193 @@
+extends default
+
+block content
+
+  div.w-75.mx-auto
+    .row
+      .col
+        h3.text-center Каталог мороженого
+        table.table
+          thead
+            tr
+              th(colspan="2")
+              th Название
+              th.text-end Цена (руб.)
+          tbody#goods
+
+      .col
+        div.mb-3
+          h3.text-center Рекомендации
+          table.table
+            thead
+              tr
+                th(colspan="2")
+                th Название
+                th.text-end Цена (руб.)
+            tbody#advice
+        div
+          h3.text-center Поиск
+          .row
+            .col-10
+              input#search.form-control.form-control-sm.m-auto(placeholder="Укажите мороженое")
+            .col-2
+              button.btn.btn-primary.btn-sm(onclick="search(this);") Искать
+
+          table.table
+            thead
+              tr
+                th(colspan="2")
+                th Название
+                th.text-end Цена (руб.)
+            tbody#search-result
+
+      .col
+        h3.text-center Корзина
+        table.table
+          thead
+            tr
+              th
+              th Название
+              th.text-end Цена (руб.)
+          tbody#basket
+
+        div.text-end
+          button.btn.btn-primary.btn-sm.py-0(style="font-size:8pt", onclick="buy(this);") Buy
+
+
+block script
+  script.
+
+    const sendEvent = (event, meta) => {
+      $.ajax({
+          url: '/user-event',
+          type: 'POST',
+          data: { event, meta },
+          success: function(response) {
+              console.log(response);
+          },
+          error: function(err) {
+              alert(err);
+          }
+      });
+    }
+
+    const goods = [
+      { "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "name": "Ванильное", "price": 150 },
+      { "id": "a1e5c6f7-0d3a-4c8e-b5f5-8d9e6a1b2c3d", "name": "Шоколадное", "price": 170 },
+      { "id": "b2f8c1e7-0a5b-4e0e-b8a9-9f3a7d6c8e0f", "name": "Клубничное", "price": 160 },
+      { "id": "c3d7a8f6-1b4e-4c9f-b9b1-e3d0a7e4b2d1", "name": "Мятное", "price": 180 },
+      { "id": "d4e6b5f5-2c3d-4e1f-b8c2-f5a9c7d8e1b2", "name": "Фисташковое", "price": 200 },
+      { "id": "e5f7c4e4-3d2e-4f0f-a7a3-g6b8d9c7e1a3", "name": "Карамельное", "price": 190 },
+      { "id": "f6g8d3f3-4e1f-5g2g-b6b4-h7c9e0d8f1b4", "name": "Кокосовое", "price": 210 },
+      { "id": "h7i9e2g2-5f0g-6h3h-c7c5-j8d1f2g9h2c5", "name": "Творожное", "price": 175 },
+      { "id": "i8j0f1h1-6g1h-7i4i-d8d6-k9e2g3h0i3d6", "name": "Лимонное", "price": 155 },
+      { "id": "j9k1g0i0-7h2i-8j5j-e9e7-l0f3h4i1j4e7", "name": "Черничное", "price": 165 },
+      { "id": "k0l2h9j9-8i3j-9k6k-f0f8-m1g4i5j2k5f8", "name": "Манговое", "price": 185 },
+      { "id": "l1m3i8k8-9j4k-a1l9-g1g9-n2h5j6k3l6g9", "name": "Персиковое", "price": 175 },
+      { "id": "m2n4j7l7-a2l5-b2m0-h2h0-o3i6k7l4m7h0", "name": "Грушевое", "price": 160 },
+      { "id": "n3o5k6m6-b3m6-c3n1-i3i1-p4j7l8m5n8i1", "name": "Трюфельное", "price": 220 },
+      { "id": "o4p6l5n5-c4n7-d4o2-j4j2-q5k8m9n6o9j2", "name": "Шербет лимонный", "price": 140 },
+      { "id": "p5q7m4o4-d5o8-e5p3-k5k3-r6l9n0o7p0k3", "name": "Шербет малиновый", "price": 145 },
+      { "id": "q6r8n3p3-e6p9-f6q4-l6l4-s7m0o1p8q1l4", "name": "Кофейное", "price": 195 },
+      { "id": "r7s9o2q2-f7q0-g7r5-m7m5-t8n1p2q9r2m5", "name": "Ореховое", "price": 205 },
+      { "id": 's8t0p1r1-g8r1-h8s6-n8n6-u9o2q3r0s3n6', "name":"Сливочное",  "price" : 165  }
+    ];
+
+    const basket = new Set();
+
+    const renderGoods = (sel, goods, opts) => {
+      const {isBasket} = opts || {};
+      $(sel).html(
+        goods.map(g => {
+          const {id, name, price} = g;
+          let buttons = [];
+          if (isBasket) {
+            const delButton = `<button class="btn btn-primary btn-sm py-0" style="font-size:8pt" onclick="delFromBasket(this);" data-id="${id}" data-from=${sel}>Del</button>`;
+            buttons = [delButton];
+          } else {
+            const addButton = `<button class="btn btn-primary btn-sm py-0" style="font-size:8pt" onclick="addToBasket(this);" data-id="${id}" data-from=${sel}>Add</button>`;
+            const viewButton = `<button class="btn btn-primary btn-sm py-0" style="font-size:8pt" onclick="viewCard(this);" data-id="${id}" data-from=${sel}>View</button>`;
+            buttons = [addButton, viewButton];
+          }
+          const priceEnd = `<td class="text-end">${price}</td>`;
+          const row = [...buttons, name].map(c => `<td>${c}</td>`).join('');
+          return `<tr>${row}${priceEnd}</tr>`;
+        }).join('')
+      );
+    };
+
+    const addToBasket = (button) => {
+      const goodId = button.dataset.id;
+      const good = goods.find(g => g.id == goodId);
+      const from = button.dataset.from;
+      if (!good) { alert("Неизвестный товар"); return; }
+      if (!basket.has(good)) {
+        basket.add(good);
+        const basketArr = Array.from(basket);
+        localStorage.setItem('basket', basketArr.map(g => g.id));
+        sendEvent('addBasket', {basket: basketArr.map(g => g.id), from});
+        renderGoods('#basket', basketArr, {isBasket: true});
+      }
+    };
+
+    const viewCard = (button) => {
+      const good = button.dataset.id;
+      const from = button.dataset.from;
+      sendEvent('view', {good, from});
+    }
+
+    const delFromBasket = (button) => {
+      const goodId = button.dataset.id;
+      const good = goods.find(g => g.id == goodId);
+      if (!good) { alert("Неизвестный товар"); return; }
+      if (basket.has(good)) {
+        basket.delete(good);
+        const basketArr = Array.from(basket);
+        localStorage.setItem('basket', basketArr.map(g => g.id));
+        sendEvent('delBasket', {basket: basketArr.map(g => g.id)});
+        renderGoods('#basket', basketArr, {isBasket: true});
+      }
+    };
+
+    const buy = (button) => {
+        const basketArr = Array.from(basket);
+        sendEvent('buy', {basket: basketArr.map(g => g.id)});
+        basket.clear();
+        localStorage.setItem('basket', []);
+        renderGoods('#basket', [], {isBasket: true});
+    }
+
+    const search = (event) => {
+      const search = ($('#search').val() || "").toLowerCase();
+      const results = search ? goods.filter(g => g.name.toLowerCase().indexOf(search) > -1 ) : [];
+      sendEvent('search', {search, results: results.map(g => g.id)});
+      renderGoods('#search-result', results);
+    };
+
+    renderGoods('#goods', goods);
+
+    const adsIds = (new Array(3)).fill(0).map(_ => Math.round((goods.length)*Math.random()));
+    sendEvent('ads', {ads: adsIds});
+    renderGoods('#advice', adsIds.map(idx => goods[idx]));
+
+    if (ids = localStorage.getItem('basket')) {
+      sendEvent('loadBasket', {basket: ids});
+      const basketGoods = goods.filter(g => ids.indexOf(g.id) > -1)
+      basketGoods.forEach(g => basket.add(g));
+      renderGoods('#basket', basketGoods, {isBasket: true});
+    }
+
+    sendEvent('pageview', {url: `${location}`});
+
+    // оповещения
+
+    const eventSource = new EventSource('http://localhost:3000/notifications');
+    eventSource.onmessage = function(event) {
+      const notification = JSON.parse(event.data);
+      if (clicks = notification['clicks']) {
+        alert(`Поздравляем! Вы совершили ${clicks} кликов`);
+      }
+    };
+    eventSource.onerror = function(err) {
+        console.error("EventSource failed:", err);
+    };

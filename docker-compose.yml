@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  influxdb:
+    image: influxdb:2.7.10
+    ports:
+      - 3001:8086
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=example-user
+      - DOCKER_INFLUXDB_INIT_PASSWORD=example-pass
+      - DOCKER_INFLUXDB_INIT_ORG=example
+      - DOCKER_INFLUXDB_INIT_BUCKET=example
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=E0Vp9-sbGMe76qcF5X22wOXGx_HTw1pqGW02xejwg97Gcm2IBI8krN_o40U3CtNoYjtlhI5vEf29uyDdmkhLdw==
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 3002:2181
+  
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    ports:
+      - '3005:8080'
+    environment:
+      - DYNAMIC_CONFIG_ENABLED=true
+    depends_on:
+      - kafka
+
+  kafka-rest:
+    image: confluentinc/cp-kafka-rest:7.7.1
+    ports:
+      - "3006:8082"
+    environment:
+      KAFKA_REST_BOOTSTRAP_SERVERS: "kafka:9092"
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+      KAFKA_REST_HOST_NAME: "kafka-rest"
+    depends_on:
+      - kafka
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    depends_on:
+      - influxdb
+      - kafka-rest
+    ports:
+      - 3007:3000

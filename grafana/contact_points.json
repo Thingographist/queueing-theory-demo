@@ -1,0 +1,1 @@
+{"uid":"be2gjm1ivqarlf","name":"Kafka notifications","type":"kafka","settings":{"details":"{{ template \"kakfa-data-alerts\" . }}","kafkaRestProxy":"http://kafka-rest:8082","kafkaTopic":"test"},"disableResolveMessage":false}

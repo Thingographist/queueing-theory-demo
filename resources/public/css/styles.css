@@ -1,0 +1,23 @@
+:root {
+    --bs-btn-padding-y: .25rem; 
+    --bs-btn-padding-x: .5rem; 
+    --bs-btn-font-size: .75rem;
+}
+
+html,body { 
+    padding: 0;
+    margin: 0;
+    height: 100vh 
+}
+
+.home.carousel {
+    border: 3px solid blanchedalmond;
+}
+
+.home.carousel, .home.carousel img {
+    border-radius: 10px;
+}
+
+.login-form {
+    width: 20em;
+}

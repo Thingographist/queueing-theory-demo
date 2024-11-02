@@ -1,0 +1,1 @@
+{"receiver":"Kafka notifications","group_by":["grafana_folder","alertname"],"group_wait":"1s","group_interval":"100000d","repeat_interval":"100000d"}
